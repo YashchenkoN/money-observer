@@ -28,7 +28,7 @@ import utils.auth.{CustomSecuredErrorHandler, CustomUnsecuredErrorHandler, Defau
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SilhouetteModule extends AbstractModule with ScalaModule {
+class SecurityModule extends AbstractModule with ScalaModule {
 
   override def configure(): Unit = {
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]

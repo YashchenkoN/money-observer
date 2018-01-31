@@ -30,7 +30,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-json" % playJsonVersion,
   "com.typesafe.play" %% "play-json-joda" % playJsonVersion,
   "com.iheart" %% "ficus" % "1.4.3",
-  "net.codingwell" %% "scala-guice" % "4.1.1"
+  "net.codingwell" %% "scala-guice" % "4.1.1",
+  "org.mockito" % "mockito-core" % "2.13.0" % Test
 )
 
 routesGenerator := InjectedRoutesGenerator

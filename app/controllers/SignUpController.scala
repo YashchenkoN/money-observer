@@ -3,17 +3,15 @@ package controllers
 import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
-import com.mohiva.play.silhouette.api.util.{Clock, PasswordHasherRegistry}
+import com.mohiva.play.silhouette.api.util.{Credentials, PasswordHasherRegistry}
 import services.UserService
 import com.mohiva.play.silhouette.api._
-import com.mohiva.play.silhouette.api.services.AvatarService
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import formatters.{CredentialFormat, Token}
 import models.security.{SignUp, User}
-import play.api.Configuration
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{JsError, Json}
-import play.api.mvc.{AbstractController, ControllerComponents}
+import play.api.i18n.I18nSupport
+import play.api.libs.json.{JsError, JsValue, Json, OFormat}
+import play.api.mvc.{AbstractController, Action, ControllerComponents}
 import utils.auth.DefaultEnv
 import utils.responses.rest.Bad
 
@@ -21,30 +19,23 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SignUpController @Inject()(components: ControllerComponents,
                                  userService: UserService,
-                                 configuration: Configuration,
                                  silhouette: Silhouette[DefaultEnv],
-                                 clock: Clock,
-                                 credentialsProvider: CredentialsProvider,
                                  authInfoRepository: AuthInfoRepository,
-                                 passwordHasherRegistry: PasswordHasherRegistry,
-                                 avatarService: AvatarService,
-                                 messagesApi: MessagesApi)
+                                 passwordHasherRegistry: PasswordHasherRegistry)
                                 (implicit ex: ExecutionContext) extends AbstractController(components) with I18nSupport {
 
-  implicit val credentialFormat = CredentialFormat.restFormat
+  implicit val credentialFormat: OFormat[Credentials] = CredentialFormat.restFormat
+  implicit val signUpFormat: OFormat[SignUp] = Json.format[SignUp]
 
-  implicit val signUpFormat = Json.format[SignUp]
-
-  def signUp = Action.async(parse.json) { implicit request =>
+  def signUp: Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[SignUp].map { signUp =>
-      val loginInfo = LoginInfo(CredentialsProvider.ID, signUp.identifier)
+      val loginInfo = LoginInfo(CredentialsProvider.ID, signUp.email)
       userService.retrieve(loginInfo).flatMap {
         case None => /* user not already exists */
-          val user = User(None, loginInfo, loginInfo.providerKey, signUp.email, signUp.firstName, signUp.lastName, None, true)
+          val user = User(None, loginInfo, loginInfo.providerKey, signUp.email, signUp.firstName, signUp.lastName, None, activated = true)
           val authInfo = passwordHasherRegistry.current.hash(signUp.password)
           for {
-            avatar <- avatarService.retrieveURL(signUp.email)
-            userToSave <- userService.save(user.copy(avatarURL = avatar))
+            userToSave <- userService.save(user)
             authInfo <- authInfoRepository.add(loginInfo, authInfo)
             authenticator <- silhouette.env.authenticatorService.create(loginInfo)
             token <- silhouette.env.authenticatorService.init(authenticator)

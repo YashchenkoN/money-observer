@@ -1,4 +1,4 @@
-package daos
+package repositories
 
 import javax.inject.Inject
 
@@ -15,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
   * An implementation of the auth info DAO which stores the data in database.
   */
-class PasswordInfoDAOImpl @Inject()(val reactiveMongoApi: ReactiveMongoApi)(implicit ex: ExecutionContext) extends DelegableAuthInfoDAO[PasswordInfo] {
+class PasswordInfoRepositoryImpl @Inject()(val reactiveMongoApi: ReactiveMongoApi)(implicit ex: ExecutionContext) extends DelegableAuthInfoDAO[PasswordInfo] {
 
   /**
     * The data store for the auth info.

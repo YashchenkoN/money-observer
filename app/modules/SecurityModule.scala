@@ -21,9 +21,9 @@ import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
 import play.api.libs.ws.WSClient
 import play.modules.reactivemongo.ReactiveMongoApi
-import repositories.AuthenticatorRepositoryImpl
+import repositories.{AuthenticatorRepositoryImpl, PasswordInfoRepositoryImpl}
 import services.{UserService, UserServiceImpl}
-import utils.auth.{DefaultEnv}
+import utils.auth.DefaultEnv
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -37,7 +37,7 @@ class SecurityModule extends AbstractModule with ScalaModule {
     bind[EventBus].toInstance(EventBus())
     bind[Clock].toInstance(Clock())
 
-    bind[DelegableAuthInfoDAO[PasswordInfo]].to[PasswordInfoDAOImpl]
+    bind[DelegableAuthInfoDAO[PasswordInfo]].to[PasswordInfoRepositoryImpl]
     bind[AuthenticatorRepository[JWTAuthenticator]].to[AuthenticatorRepositoryImpl]
   }
 

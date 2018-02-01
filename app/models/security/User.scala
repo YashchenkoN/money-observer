@@ -10,11 +10,11 @@ case class User(id: Option[String], loginInfo: LoginInfo, username: String, emai
 
 object User {
 
-  implicit val reader = Json.reads[User]
-  implicit val writer = Json.writes[User]
+  implicit val reader: Reads[User] = Json.reads[User]
+  implicit val writer: OWrites[User] = Json.writes[User]
 
-  implicit val loginInfoReader = Json.reads[LoginInfo]
-  implicit val loginInfoWriter = Json.writes[LoginInfo]
+  implicit val loginInfoReader: Reads[LoginInfo] = Json.reads[LoginInfo]
+  implicit val loginInfoWriter: OWrites[LoginInfo] = Json.writes[LoginInfo]
 
   implicit object UserWrites extends OWrites[User] {
     def writes(user: User): JsObject =

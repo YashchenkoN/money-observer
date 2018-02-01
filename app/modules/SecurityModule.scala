@@ -14,7 +14,6 @@ import com.mohiva.play.silhouette.impl.util.{PlayCacheLayer, SecureRandomIDGener
 import com.mohiva.play.silhouette.password.{BCryptPasswordHasher, BCryptSha256PasswordHasher}
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import com.mohiva.play.silhouette.persistence.repositories.DelegableAuthInfoRepository
-import daos._
 import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import net.codingwell.scalaguice.ScalaModule
@@ -62,7 +61,7 @@ class SecurityModule extends AbstractModule with ScalaModule {
   def provideEnvironment(userService: UserService,
                          authenticatorService: AuthenticatorService[JWTAuthenticator],
                          eventBus: EventBus): Environment[DefaultEnv] =
-  Environment[DefaultEnv](userService, authenticatorService, Seq(), eventBus)
+    Environment[DefaultEnv](userService, authenticatorService, Seq(), eventBus)
 
   /**
     * Provides the crypter for the authenticator.
@@ -81,10 +80,10 @@ class SecurityModule extends AbstractModule with ScalaModule {
   /**
     * Provides the authenticator service.
     *
-    * @param crypter              The crypter implementation.
-    * @param idGenerator          The ID generator implementation.
-    * @param configuration        The Play configuration.
-    * @param clock                The clock instance.
+    * @param crypter       The crypter implementation.
+    * @param idGenerator   The ID generator implementation.
+    * @param configuration The Play configuration.
+    * @param clock         The clock instance.
     * @return The authenticator service.
     */
   @Provides
@@ -118,7 +117,7 @@ class SecurityModule extends AbstractModule with ScalaModule {
     */
   @Provides
   def provideAuthInfoRepository(passwordInfoDAO: DelegableAuthInfoDAO[PasswordInfo]): AuthInfoRepository =
-  new DelegableAuthInfoRepository(passwordInfoDAO)
+    new DelegableAuthInfoRepository(passwordInfoDAO)
 
   /**
     * Provides the avatar service.

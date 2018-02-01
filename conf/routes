@@ -5,3 +5,6 @@
 
 POST    /api/auth/signup                            controllers.SignUpController.signUp
 POST    /api/auth/signin                            controllers.SignInController.signIn
+
+POST    /api/accounts                               controllers.AccountController.create
+DELETE  /api/accounts/:id                           controllers.AccountController.delete(id: String)

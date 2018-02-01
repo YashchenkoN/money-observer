@@ -6,3 +6,4 @@
 GET     /count                                      controllers.CountController.count
 
 POST    /api/auth/signup                            controllers.SignUpController.signUp
+POST    /api/auth/signin                            controllers.SignInController.signIn

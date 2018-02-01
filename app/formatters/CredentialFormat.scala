@@ -6,6 +6,6 @@ import play.api.libs.json._
 
 object CredentialFormat {
 
-  implicit val restFormat = ((__ \ "identifier").format[String] ~
+  implicit val restFormat: OFormat[Credentials] = ((__ \ "email").format[String] ~
   (__ \ "password").format[String])(Credentials.apply, unlift(Credentials.unapply))
 }

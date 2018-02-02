@@ -17,7 +17,7 @@ object Account {
   implicit object AccountWrites extends OWrites[Account] {
     override def writes(account: Account): JsObject =
       Json.obj(
-        "id" -> account.id,
+        "_id" -> account.id,
         "name" -> account.name,
         "type" -> account.`type`,
         "user_id" -> account.user_id

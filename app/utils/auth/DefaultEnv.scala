@@ -5,7 +5,6 @@ import com.mohiva.play.silhouette.impl.authenticators.{CookieAuthenticator, JWTA
 import models.security.User
 
 trait DefaultEnv extends Env {
-
   type I = User
   type A = JWTAuthenticator
 }

@@ -8,9 +8,9 @@ import models.account.CreateAccountRequest
 import models.security.User
 import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoApi
+import play.modules.reactivemongo.json._
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.collection.JSONCollection
-import play.modules.reactivemongo.json._
 
 import scala.concurrent.{ExecutionContext, Future}
 

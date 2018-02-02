@@ -11,5 +11,6 @@ import scala.concurrent.Future
   */
 trait AccountService {
   def save(createAccountRequest: CreateAccountRequest, identity: User): Future[JsObject]
+
   def delete(id: String): Future[Unit]
 }

@@ -40,35 +40,15 @@ class SecurityModule extends AbstractModule with ScalaModule {
     bind[AuthenticatorRepository[JWTAuthenticator]].to[AuthenticatorRepositoryImpl]
   }
 
-  /**
-    * Provides the HTTP layer implementation.
-    *
-    * @param client Play's WS client.
-    * @return The HTTP layer implementation.
-    */
   @Provides
   def provideHTTPLayer(client: WSClient): HTTPLayer = new PlayHTTPLayer(client)
 
-  /**
-    * Provides the Silhouette environment.
-    *
-    * @param userService          The user service implementation.
-    * @param authenticatorService The authentication service implementation.
-    * @param eventBus             The event bus instance.
-    * @return The Silhouette environment.
-    */
   @Provides
   def provideEnvironment(userService: UserService,
                          authenticatorService: AuthenticatorService[JWTAuthenticator],
                          eventBus: EventBus): Environment[DefaultEnv] =
     Environment[DefaultEnv](userService, authenticatorService, Seq(), eventBus)
 
-  /**
-    * Provides the crypter for the authenticator.
-    *
-    * @param configuration The Play configuration.
-    * @return The crypter for the authenticator.
-    */
   @Provides
   @Named("authenticator-crypter")
   def provideAuthenticatorCrypter(configuration: Configuration): Crypter = {
@@ -77,15 +57,6 @@ class SecurityModule extends AbstractModule with ScalaModule {
     new JcaCrypter(config)
   }
 
-  /**
-    * Provides the authenticator service.
-    *
-    * @param crypter       The crypter implementation.
-    * @param idGenerator   The ID generator implementation.
-    * @param configuration The Play configuration.
-    * @param clock         The clock instance.
-    * @return The authenticator service.
-    */
   @Provides
   def provideAuthenticatorService(@Named("authenticator-crypter") crypter: Crypter,
                                   idGenerator: IDGenerator,
@@ -99,32 +70,15 @@ class SecurityModule extends AbstractModule with ScalaModule {
     new JWTAuthenticatorService(settings, Some(authenticatorRepository), encoder, idGenerator, clock)
   }
 
-  /**
-    * Provides the password hasher registry.
-    *
-    * @return The password hasher registry.
-    */
   @Provides
   def providePasswordHasherRegistry(): PasswordHasherRegistry = {
     PasswordHasherRegistry(new BCryptSha256PasswordHasher(), Seq(new BCryptPasswordHasher()))
   }
 
-  /**
-    * Provides the auth info repository.
-    *
-    * @param passwordInfoDAO The implementation of the delegable password auth info DAO.
-    * @return The auth info repository instance.
-    */
   @Provides
   def provideAuthInfoRepository(passwordInfoDAO: DelegableAuthInfoDAO[PasswordInfo]): AuthInfoRepository =
     new DelegableAuthInfoRepository(passwordInfoDAO)
 
-  /**
-    * Provides the avatar service.
-    *
-    * @param httpLayer The HTTP layer implementation.
-    * @return The avatar service implementation.
-    */
   @Provides
   def provideAvatarService(httpLayer: HTTPLayer): AvatarService = new GravatarService(httpLayer)
 }

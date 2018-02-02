@@ -8,15 +8,19 @@ import models.account.CreateAccountRequest
 import models.security.User
 import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoApi
+import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.collection.JSONCollection
+import play.modules.reactivemongo.json._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * @author Mykola Yashchenko
   */
 @Singleton
-class AccountServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi) extends AccountService {
+class AccountServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)(implicit ec: ExecutionContext) extends AccountService {
+
+  implicit lazy val format = Json.format[Account]
 
   def accounts: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("accounts"))
 
@@ -28,15 +32,14 @@ class AccountServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi) extends A
       identity.id.get
     )
 
-    accounts.flatMap(_.find(Json.obj("name" -> account.name)).one[Account]).flatMap {
-      case Some(value) => throw new RuntimeException("Account with such name already exists")
+    accounts.flatMap(_.find(BSONDocument("name" -> account.name)).one[Account]).flatMap {
+      case Some(_) => throw new RuntimeException("Account with such name already exists")
       case None =>
-        val accountJson = Json.toJson(account)
-        accounts.flatMap(_.insert(accountJson)).flatMap(_ => Future.successful(Json.obj("id" -> account.id)))
+        accounts.flatMap(_.insert(account)).flatMap(_ => Future.successful(Json.obj("id" -> account.id)))
     }
   }
 
   override def delete(id: String): Future[Unit] = {
-    accounts.flatMap(_.remove(Json.obj("id" -> id))).flatMap(_ => Future.successful(()))
+    accounts.flatMap(_.remove(BSONDocument("id" -> id))).flatMap(_ => Future.successful(()))
   }
 }

@@ -58,5 +58,18 @@ class SignInSpec extends PlaySpecification {
 
       header("X-Auth-Token", signInResult).get must not beEmpty
     }
+
+    "return error if user doesn't exist" in new WithApplication() {
+
+      val signInRequest: FakeRequest[Credentials] = FakeRequest()
+        .withMethod("POST")
+        .withBody(Credentials(UUID.randomUUID().toString, UUID.randomUUID().toString))
+        .withHeaders("Content-Type" -> "application/json")
+
+      val signInController: SignInController = app.injector.instanceOf(classOf[SignInController])
+      val signInResult = signInController.signIn().apply(signInRequest)
+
+      status(signInResult) must equalTo(BAD_REQUEST)
+    }
   }
 }

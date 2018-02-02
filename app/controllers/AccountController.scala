@@ -37,7 +37,7 @@ class AccountController @Inject()(components: ControllerComponents,
 
   def delete(id: String) = silhouette.SecuredAction.async(parse.json) { implicit request =>
     accountService.delete(id).flatMap(_ =>
-      Future.successful(Ok())
+      Future.successful(Ok)
     )
   }
 }

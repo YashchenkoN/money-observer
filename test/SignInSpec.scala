@@ -69,7 +69,7 @@ class SignInSpec extends PlaySpecification {
       val signInController: SignInController = app.injector.instanceOf(classOf[SignInController])
       val signInResult = signInController.signIn().apply(signInRequest)
 
-      status(signInResult) must equalTo(BAD_REQUEST)
+      status(signInResult) must equalTo(FORBIDDEN)
     }
   }
 }

@@ -1,12 +1,12 @@
 package services
 
 import java.util.UUID
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import entity.Account
 import models.account.CreateAccountRequest
 import models.security.User
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, Json, OFormat}
 import play.modules.reactivemongo.ReactiveMongoApi
 import play.modules.reactivemongo.json._
 import reactivemongo.bson.BSONDocument
@@ -20,7 +20,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class AccountServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)(implicit ec: ExecutionContext) extends AccountService {
 
-  implicit lazy val format = Json.format[Account]
+  implicit lazy val format: OFormat[Account] = Json.format[Account]
 
   def accounts: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("accounts"))
 

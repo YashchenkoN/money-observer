@@ -5,7 +5,7 @@ import play.api.libs.json._
 /**
   * @author Mykola Yashchenko
   */
-case class Account(id: String, name: String, `type`: String, user_id: String)
+case class Account(id: String, name: String, `type`: String, userId: String)
 
 object Account {
 

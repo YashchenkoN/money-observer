@@ -21,7 +21,7 @@ import play.api.Configuration
 import play.api.libs.ws.WSClient
 import play.modules.reactivemongo.ReactiveMongoApi
 import repositories.{AuthenticatorRepositoryImpl, PasswordInfoRepositoryImpl}
-import services.{UserService, UserServiceImpl}
+import services.{AccountService, AccountServiceImpl, UserService, UserServiceImpl}
 import utils.auth.DefaultEnv
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -31,6 +31,7 @@ class SecurityModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
     bind[UserService].to[UserServiceImpl]
+    bind[AccountService].to[AccountServiceImpl]
     bind[CacheLayer].to[PlayCacheLayer]
     bind[IDGenerator].toInstance(new SecureRandomIDGenerator())
     bind[EventBus].toInstance(EventBus())

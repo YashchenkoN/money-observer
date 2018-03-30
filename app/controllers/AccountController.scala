@@ -35,8 +35,14 @@ class AccountController @Inject()(components: ControllerComponents,
       Future.successful(BadRequest(Json.toJson(Bad(message = JsError.toJson(error))))))
   }
 
-  def delete(id: String) = silhouette.SecuredAction.async(parse.json) { implicit request =>
-    accountService.delete(id).flatMap(_ =>
+  def read(id: String) = silhouette.SecuredAction.async { implicit request =>
+    accountService.read(id, request.identity).flatMap(res =>
+      Future.successful(Ok(res))
+    )
+  }
+
+  def delete(id: String) = silhouette.SecuredAction.async { implicit request =>
+    accountService.delete(id, request.identity).flatMap(_ =>
       Future.successful(Ok)
     )
   }

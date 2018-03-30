@@ -4,7 +4,7 @@ import java.util.UUID
 
 import javax.inject.{Inject, Singleton}
 import entity.Account
-import models.account.CreateAccountRequest
+import models.account.{AccountView, CreateAccountRequest}
 import models.security.User
 import play.api.libs.json.{JsObject, Json, OFormat}
 import play.modules.reactivemongo.ReactiveMongoApi
@@ -39,7 +39,13 @@ class AccountServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)(implicit 
     }
   }
 
-  override def delete(id: String): Future[Unit] = {
-    accounts.flatMap(_.remove(BSONDocument("id" -> id))).flatMap(_ => Future.successful(()))
+  override def delete(id: String, identity: User): Future[Unit] = {
+    accounts.flatMap(_.remove(BSONDocument("id" -> id, "userId" -> identity.id)))
+      .flatMap(_ => Future.successful(()))
+  }
+
+  override def read(id: String, identity: User): Future[JsObject] = {
+    accounts.flatMap(_.find(BSONDocument("id" -> id, "userId" -> identity.id)).one[AccountView])
+      .flatMap(acc => Future.successful(Json.toJsObject(acc)))
   }
 }

@@ -8,3 +8,4 @@ POST    /api/auth/signin                            controllers.SignInController
 
 POST    /api/accounts                               controllers.AccountController.create
 DELETE  /api/accounts/:id                           controllers.AccountController.delete(id: String)
+GET     /api/accounts/:id                           controllers.AccountController.read(id: String)

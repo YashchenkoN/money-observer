@@ -34,16 +34,20 @@ class TransactionServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)
       request.amount
     )
 
-    transactions.flatMap(_.insert(transaction)).flatMap(_ => Future.successful(Json.obj("id" -> transaction.id)))
+    transactions
+      .flatMap(_.insert(transaction))
+      .flatMap(_ => Future.successful(Json.obj("id" -> transaction.id)))
   }
 
   override def delete(id: String, identity: User): Future[Unit] = {
-    transactions.flatMap(_.remove(BSONDocument("id" -> id, "userId" -> identity.id)))
+    transactions
+      .flatMap(_.remove(BSONDocument("id" -> id, "userId" -> identity.id)))
       .flatMap(_ => Future.successful(()))
   }
 
   override def read(id: String, identity: User): Future[JsObject] = {
-    transactions.flatMap(_.find(BSONDocument("id" -> id, "userId" -> identity.id)).one[TransactionView])
+    transactions
+      .flatMap(_.find(BSONDocument("id" -> id, "userId" -> identity.id)).one[TransactionView])
       .flatMap(acc => Future.successful(Json.toJsObject(acc)))
   }
 
@@ -51,8 +55,7 @@ class TransactionServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)
     transactions.flatMap(
       _.find(BSONDocument("userId" -> identity.id))
         .cursor[TransactionView]()
-        .collect[List](100, Cursor.FailOnError[List[TransactionView]]())
-    )
+        .collect[List](100, Cursor.FailOnError[List[TransactionView]]()))
       .flatMap(acc =>
         Future.successful(
           JsArray(

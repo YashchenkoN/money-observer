@@ -9,3 +9,8 @@ POST    /api/auth/signin                            controllers.SignInController
 POST    /api/accounts                               controllers.AccountController.create
 DELETE  /api/accounts/:id                           controllers.AccountController.delete(id: String)
 GET     /api/accounts/:id                           controllers.AccountController.read(id: String)
+
+POST    /api/transactions                           controllers.TransactionController.create
+DELETE  /api/transactions/:id                       controllers.TransactionController.delete(id: String)
+GET     /api/transactions/:id                       controllers.TransactionController.read(id: String)
+GET     /api/transactions                           controllers.TransactionController.read

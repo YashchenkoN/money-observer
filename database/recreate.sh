@@ -9,5 +9,6 @@ function main {
     mongo "mongodb://${hostAddress}:${portNumber}/${databaseName}" --eval 'db.createCollection("password")'
     mongo "mongodb://${hostAddress}:${portNumber}/${databaseName}" --eval 'db.createCollection("passwordInfo")'
     mongo "mongodb://${hostAddress}:${portNumber}/${databaseName}" --eval 'db.createCollection("accounts")'
+    mongo "mongodb://${hostAddress}:${portNumber}/${databaseName}" --eval 'db.createCollection("transactions")'
 }
 main

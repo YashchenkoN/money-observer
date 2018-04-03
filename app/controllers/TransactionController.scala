@@ -31,8 +31,16 @@ class TransactionController @Inject()(components: ControllerComponents,
           .flatMap(idRef =>
             Future.successful(Ok(idRef))
           )
-      }.recoverTotal(error =>
-      Future.successful(BadRequest(Json.toJson(Bad(message = JsError.toJson(error))))))
+      }
+      .recoverTotal(error =>
+        Future.successful(
+          BadRequest(
+            Json.toJson(
+              Bad(message = JsError.toJson(error))
+            )
+          )
+        )
+      )
   }
 
   def read(id: String) = silhouette.SecuredAction.async { implicit request =>

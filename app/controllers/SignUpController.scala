@@ -1,9 +1,8 @@
 package controllers
 
-import javax.inject.Inject
-
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{Credentials, PasswordHasherRegistry}
+import javax.inject.Inject
 import services.UserService
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
@@ -28,30 +27,34 @@ class SignUpController @Inject()(components: ControllerComponents,
   implicit val signUpFormat: OFormat[SignUp] = Json.format[SignUp]
 
   def signUp: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    request.body.validate[SignUp].map { signUp =>
-      val loginInfo = LoginInfo(CredentialsProvider.ID, signUp.email)
-      userService.retrieve(loginInfo).flatMap {
-        case None => /* user not already exists */
-          val user = User(None, loginInfo, loginInfo.providerKey, signUp.email, signUp.firstName, signUp.lastName, None, activated = true)
-          val authInfo = passwordHasherRegistry.current.hash(signUp.password)
-          for {
-            userToSave <- userService.save(user)
-            authInfo <- authInfoRepository.add(loginInfo, authInfo)
-            authenticator <- silhouette.env.authenticatorService.create(loginInfo)
-            token <- silhouette.env.authenticatorService.init(authenticator)
-            result <- silhouette.env.authenticatorService.embed(token,
-              Ok(Json.toJson(Token(token = token, expiresOn = authenticator.expirationDateTime)))
-            )
-          } yield {
-            // todo add email confirmation
-            silhouette.env.eventBus.publish(SignUpEvent(user, request))
-            silhouette.env.eventBus.publish(LoginEvent(user, request))
-            result
+    request.body.validate[SignUp]
+      .map { signUp =>
+        val loginInfo = LoginInfo(CredentialsProvider.ID, signUp.email)
+
+        userService.retrieve(loginInfo)
+          .flatMap {
+            case None => /* user not already exists */
+              val user = User(None, loginInfo, loginInfo.providerKey, signUp.email, signUp.firstName, signUp.lastName, None, activated = true)
+              val authInfo = passwordHasherRegistry.current.hash(signUp.password)
+              for {
+                userToSave <- userService.save(user)
+                authInfo <- authInfoRepository.add(loginInfo, authInfo)
+                authenticator <- silhouette.env.authenticatorService.create(loginInfo)
+                token <- silhouette.env.authenticatorService.init(authenticator)
+                result <- silhouette.env.authenticatorService.embed(token,
+                  Ok(Json.toJson(Token(token = token, expiresOn = authenticator.expirationDateTime)))
+                )
+              } yield {
+                // todo add email confirmation
+                silhouette.env.eventBus.publish(SignUpEvent(user, request))
+                silhouette.env.eventBus.publish(LoginEvent(user, request))
+                result
+              }
+            case Some(_) => /* user already exists! */
+              Future(Conflict(Json.toJson(Bad(message = "user already exists"))))
           }
-        case Some(_) => /* user already exists! */
-          Future(Conflict(Json.toJson(Bad(message = "user already exists"))))
       }
-    }.recoverTotal(error =>
-      Future.successful(BadRequest(Json.toJson(Bad(message = JsError.toJson(error))))))
+      .recoverTotal(error =>
+        Future.successful(BadRequest(Json.toJson(Bad(message = JsError.toJson(error))))))
   }
 }

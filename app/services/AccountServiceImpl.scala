@@ -2,8 +2,8 @@ package services
 
 import java.util.UUID
 
-import javax.inject.{Inject, Singleton}
 import entity.Account
+import javax.inject.{Inject, Singleton}
 import models.account.{AccountView, CreateAccountRequest}
 import models.security.User
 import play.api.libs.json.{JsObject, Json, OFormat}
@@ -32,20 +32,27 @@ class AccountServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)(implicit 
       identity.id.get
     )
 
-    accounts.flatMap(_.find(BSONDocument("name" -> account.name)).one[Account]).flatMap {
-      case Some(_) => throw new RuntimeException("Account with such name already exists")
-      case None =>
-        accounts.flatMap(_.insert(account)).flatMap(_ => Future.successful(Json.obj("id" -> account.id)))
+    accounts
+      .flatMap(
+        _.find(BSONDocument("name" -> account.name)).one[Account])
+          .flatMap {
+            case Some(_) => throw new RuntimeException("Account with such name already exists")
+            case None =>
+              accounts
+                .flatMap(_.insert(account))
+                .flatMap(_ => Future.successful(Json.obj("id" -> account.id)))
     }
   }
 
   override def delete(id: String, identity: User): Future[Unit] = {
-    accounts.flatMap(_.remove(BSONDocument("id" -> id, "userId" -> identity.id)))
+    accounts
+      .flatMap(_.remove(BSONDocument("id" -> id, "userId" -> identity.id)))
       .flatMap(_ => Future.successful(()))
   }
 
   override def read(id: String, identity: User): Future[JsObject] = {
-    accounts.flatMap(_.find(BSONDocument("id" -> id, "userId" -> identity.id)).one[AccountView])
+    accounts
+      .flatMap(_.find(BSONDocument("id" -> id, "userId" -> identity.id)).one[AccountView])
       .flatMap(acc => Future.successful(Json.toJsObject(acc)))
   }
 }

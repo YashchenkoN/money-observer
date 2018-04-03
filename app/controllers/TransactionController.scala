@@ -25,30 +25,34 @@ class TransactionController @Inject()(components: ControllerComponents,
   implicit val transactionFormat: OFormat[CreateTransactionRequest] = Json.format[CreateTransactionRequest]
 
   def create = silhouette.SecuredAction.async(parse.json) { implicit request =>
-    request.body.validate[CreateTransactionRequest].map { createTransactionRequest =>
-      transactionService.save(createTransactionRequest, request.identity)
-        .flatMap(idRef =>
-          Future.successful(Ok(idRef))
-        )
-    }.recoverTotal(error =>
+    request.body.validate[CreateTransactionRequest]
+      .map { createTransactionRequest =>
+        transactionService.save(createTransactionRequest, request.identity)
+          .flatMap(idRef =>
+            Future.successful(Ok(idRef))
+          )
+      }.recoverTotal(error =>
       Future.successful(BadRequest(Json.toJson(Bad(message = JsError.toJson(error))))))
   }
 
   def read(id: String) = silhouette.SecuredAction.async { implicit request =>
-    transactionService.read(id, request.identity).flatMap(res =>
-      Future.successful(Ok(res))
-    )
+    transactionService.read(id, request.identity)
+      .flatMap(res =>
+        Future.successful(Ok(res))
+      )
   }
 
   def delete(id: String) = silhouette.SecuredAction.async { implicit request =>
-    transactionService.delete(id, request.identity).flatMap(_ =>
-      Future.successful(Ok)
-    )
+    transactionService.delete(id, request.identity)
+      .flatMap(_ =>
+        Future.successful(Ok)
+      )
   }
 
   def read = silhouette.SecuredAction.async { implicit request =>
-    transactionService.read(request.identity).flatMap(res =>
-      Future.successful(Ok(res))
-    )
+    transactionService.read(request.identity)
+      .flatMap(res =>
+        Future.successful(Ok(res))
+      )
   }
 }

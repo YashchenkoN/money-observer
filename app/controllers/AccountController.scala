@@ -1,9 +1,8 @@
 package controllers
 
-import javax.inject.Inject
-
 import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
+import javax.inject.Inject
 import models.account.CreateAccountRequest
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{JsError, Json, OFormat}
@@ -26,24 +25,28 @@ class AccountController @Inject()(components: ControllerComponents,
   implicit val accountFormat: OFormat[CreateAccountRequest] = Json.format[CreateAccountRequest]
 
   def create = silhouette.SecuredAction.async(parse.json) { implicit request =>
-    request.body.validate[CreateAccountRequest].map { createAccountRequest =>
-      accountService.save(createAccountRequest, request.identity)
-        .flatMap(idRef =>
-          Future.successful(Ok(idRef))
-        )
-    }.recoverTotal(error =>
-      Future.successful(BadRequest(Json.toJson(Bad(message = JsError.toJson(error))))))
+    request.body.validate[CreateAccountRequest]
+      .map { createAccountRequest =>
+        accountService.save(createAccountRequest, request.identity)
+          .flatMap(idRef =>
+            Future.successful(Ok(idRef))
+          )
+      }
+      .recoverTotal(error =>
+        Future.successful(BadRequest(Json.toJson(Bad(message = JsError.toJson(error))))))
   }
 
   def read(id: String) = silhouette.SecuredAction.async { implicit request =>
-    accountService.read(id, request.identity).flatMap(res =>
-      Future.successful(Ok(res))
-    )
+    accountService.read(id, request.identity)
+      .flatMap(res =>
+        Future.successful(Ok(res))
+      )
   }
 
   def delete(id: String) = silhouette.SecuredAction.async { implicit request =>
-    accountService.delete(id, request.identity).flatMap(_ =>
-      Future.successful(Ok)
-    )
+    accountService.delete(id, request.identity)
+      .flatMap(_ =>
+        Future.successful(Ok)
+      )
   }
 }
